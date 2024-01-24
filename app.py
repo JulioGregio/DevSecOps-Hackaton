@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123mudar@localhost:3306/cadastro'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'sua_chave_secreta'  # Altere isso para uma chave secreta forte
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', os.urandom(32).hex())
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', True)
+
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
@@ -33,6 +37,14 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
 
+def is_valid_username(username):
+    # Adicione suas próprias regras de validação para o nome de usuário
+    return username and len(username) >= 4 and len(username) <= 20
+
+def is_valid_password(password):
+    # Adicione suas próprias regras de validação para a senha
+    return password and len(password) >= 6
+
 @app.route('/add')
 def index():
     tasks = TaskInMemory.get_all_tasks()
@@ -48,13 +60,6 @@ def add():
     new_task = TaskInMemory(content=content)
     return redirect(url_for('index'))
 
-@app.route('/delete/<int:id>')
-def delete(id):
-    task_to_delete = TaskInMemory.get_task_by_id(id)
-    if task_to_delete:
-        TaskInMemory.tasks.remove(task_to_delete)
-    return redirect(url_for('index'))
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -63,16 +68,14 @@ def login():
             new_username = request.form.get('new_username')
             new_password = request.form.get('new_password')
 
-            if not new_username or not new_password:
+            if not is_valid_username(new_username) or not is_valid_password(new_password):
                 flash('Por favor, forneça um nome de usuário e senha válidos.', 'danger')
                 return redirect(url_for('login'))
 
-            # Verifique se o novo usuário já existe
             existing_user = User.query.filter_by(username=new_username).first()
             if existing_user:
                 flash('Nome de usuário já existe. Escolha outro.', 'danger')
             else:
-                # Cria o novo usuário
                 hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
                 new_user = User(username=new_username, password=hashed_password)
 
@@ -92,10 +95,9 @@ def login():
             flash('Por favor, forneça um nome de usuário e senha válidos.', 'danger')
             return redirect(url_for('login'))
 
-        # Verifica se o usuário está tentando fazer login
         user = User.query.filter_by(username=username).first()
         if user and bcrypt.check_password_hash(user.password, password):
-            session['user_id'] = user.id  # Armazena o ID do usuário na sessão
+            session['user_id'] = user.id
             flash('Login bem-sucedido!', 'success')
             return redirect(url_for('index'))
         else:
