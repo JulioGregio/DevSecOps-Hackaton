@@ -17,20 +17,21 @@ class TaskInMemory:
     tasks = []
     id_counter = 1
 
-    def __init__(self, content):
+    def __init__(self, content, user_id):
         self.id = TaskInMemory.id_counter
         TaskInMemory.id_counter += 1
         self.content = content
         self.done = False
+        self.user_id = user_id
         TaskInMemory.tasks.append(self)
+
+    @classmethod
+    def get_user_tasks(cls, user_id):
+        return [task for task in cls.tasks if task.user_id == user_id]
 
     @classmethod
     def get_task_by_id(cls, task_id):
         return next((task for task in cls.tasks if task.id == task_id), None)
-
-    @classmethod
-    def get_all_tasks(cls):
-        return cls.tasks
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,17 +39,20 @@ class User(db.Model):
     password = db.Column(db.String(60), nullable=False)
 
 def is_valid_username(username):
-    # Adicione suas próprias regras de validação para o nome de usuário
-    return username and len(username) >= 4 and len(username) <= 20
+    return username and 4 <= len(username) <= 20
 
 def is_valid_password(password):
-    # Adicione suas próprias regras de validação para a senha
     return password and len(password) >= 6
 
 @app.route('/add')
 def index():
-    tasks = TaskInMemory.get_all_tasks()
-    return render_template('index.html', tasks=tasks)
+    if 'user_id' not in session:
+        flash('Você precisa estar logado para visualizar suas tarefas.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user_tasks = TaskInMemory.get_user_tasks(user_id)
+    return render_template('index.html', tasks=user_tasks)
 
 @app.route('/add', methods=['POST'])
 def add():
@@ -57,13 +61,13 @@ def add():
         return redirect(url_for('login'))
 
     content = request.form['content']
-    new_task = TaskInMemory(content=content)
+    user_id = session['user_id']
+    new_task = TaskInMemory(content=content, user_id=user_id)
     return redirect(url_for('index'))
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Verifica se o usuário está tentando criar uma conta
         if 'create_account' in request.form:
             new_username = request.form.get('new_username')
             new_password = request.form.get('new_password')
@@ -85,9 +89,9 @@ def login():
                     flash('Conta criada com sucesso! Faça o login agora.', 'success')
                     return redirect(url_for('login'))
                 except Exception as e:
+                    db.session.rollback()
                     flash(f'Erro ao criar conta: {str(e)}', 'danger')
 
-        # Se não estiver criando uma conta, verifica o login normal
         username = request.form.get('username')
         password = request.form.get('password')
 
@@ -105,7 +109,24 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/delete/<int:id>')
+def delete(id):
+    task_to_delete = TaskInMemory.get_task_by_id(id)
+    if task_to_delete:
+        TaskInMemory.tasks.remove(task_to_delete)
+    return redirect(url_for('index'))
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    if request.method == 'POST':
+        session.pop('user_id', None)
+        flash('Logout bem-sucedido!', 'success')
+        return redirect(url_for('login'))
+    else:
+        return redirect(url_for('login'))
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+
     app.run(debug=True)

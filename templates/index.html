@@ -12,6 +12,9 @@
         <input type="text" id="content" name="content" required>
         <button type="submit">Adicionar</button>
     </form>
+    <form action="{{ url_for('logout') }}" method="post">
+        <button type="submit">Logout</button>
+    </form>    
     <ul>
         {% for task in tasks %}
             <li>
