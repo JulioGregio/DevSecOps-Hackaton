@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  flask-app:
+    build:
+      context: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mariadb
+    environment:
+      DATABASE_URI: "mysql+pymysql://root:123mudar@mariadb/cadastro"
+
+  mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123mudar
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  mariadb_data:
