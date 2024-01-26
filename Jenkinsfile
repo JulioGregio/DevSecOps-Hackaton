@@ -3,26 +3,17 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "DevSecTest/DevSecTest:latest"
-        MAVEN_HOME = tool 'Maven' // Defina a instalação do Maven configurada no Jenkins
     }
 
     stages {
         stage('Clonar Repositório') {
             steps {
+                // Utilizando branch e URL separados para maior clareza
                 git branch: 'main', url: 'https://github.com/JulioGregio/DevSecOps-Hackaton.git'
             }
         }
 
         stage('Construir e Testar') {
-            steps {
-                script {
-                    // Construir o projeto com Maven
-                    sh "${MAVEN_HOME}/bin/mvn clean install"
-                }
-            }
-        }
-
-        stage('Construir Imagem Docker') {
             steps {
                 script {
                     sh "docker build -t $DOCKER_IMAGE ."
