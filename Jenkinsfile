@@ -9,7 +9,6 @@ pipeline {
         stage('Clonar Repositório') {
             steps {
                 script {
-                    // Clonar do branch principal (mude para 'main' se estiver usando 'main' como branch principal)
                     git 'https://github.com/JulioGregio/DevSecOps-Hackaton.git'
                 }
             }
@@ -43,20 +42,17 @@ pipeline {
     post {
         always {
             script {
-                // Lógica que será executada independentemente do resultado
-                // Exemplo: Remover recursos temporários, gerar relatórios, etc.
+                echo 'In progess'
             }
         }
         success {
             script {
-                // Lógica executada apenas se a pipeline for bem-sucedida
-                // Exemplo: Notificar equipes, gerar relatórios de sucesso, etc.
+               echo 'Sucess'
             }
         }
         failure {
             script {
-                // Lógica executada apenas se a pipeline falhar
-                // Exemplo: Notificar equipes, executar ações corretivas, etc.
+                echo 'Fail'
             }
         }
     }
