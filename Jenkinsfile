@@ -8,9 +8,8 @@ pipeline {
     stages {
         stage('Clonar Repositório') {
             steps {
-                script {
-                    git 'https://github.com/JulioGregio/DevSecOps-Hackaton.git'
-                }
+                // Utilizando branch e URL separados para maior clareza
+                git branch: 'main', url: 'https://github.com/JulioGregio/DevSecOps-Hackaton.git'
             }
         }
 
@@ -42,12 +41,12 @@ pipeline {
     post {
         always {
             script {
-                echo 'In progess'
+                echo 'In progress'
             }
         }
         success {
             script {
-               echo 'Sucess'
+                echo 'Success'
             }
         }
         failure {
