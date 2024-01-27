@@ -43,10 +43,6 @@ pipeline {
         always {
             script {
                 echo 'Finalizando'
-                if (docker.image.exists(env.DOCKER_IMAGE)) {
-                    docker.image(env.DOCKER_IMAGE).remove()
-                } else {
-                    echo "A imagem ${env.DOCKER_IMAGE} não existe."
                 }
             }
         }
