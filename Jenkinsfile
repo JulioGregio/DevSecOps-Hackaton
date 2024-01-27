@@ -8,7 +8,6 @@ pipeline {
     stages {
         stage('Clonar Repositório') {
             steps {
-                // Utilizando branch e URL separados para maior clareza
                 git branch: 'main', url: 'https://github.com/JulioGregio/DevSecOps-Hackaton.git'
             }
         }
@@ -17,6 +16,7 @@ pipeline {
             steps {
                 script {
                     sh "docker build -t $DOCKER_IMAGE ."
+                    sh "docker image inspect $DOCKER_IMAGE"
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Análise Estática de Código') {
             steps {
                 script {
-                    echo "fazer"
+                    echo "Realizar análise estática de código aqui"
                 }
             }
         }
@@ -32,7 +32,8 @@ pipeline {
         stage('Análise de Vulnerabilidades') {
             steps {
                 script {
-                    sh "trivy image ${env.DOCKER_IMAGE}"
+                    sh "docker image inspect $DOCKER_IMAGE"
+                    sh "trivy image $DOCKER_IMAGE"
                 }
             }
         }
@@ -41,18 +42,22 @@ pipeline {
     post {
         always {
             script {
-                echo 'In progress'
-                docker.image(env.DOCKER_IMAGE).remove()
+                echo 'Finalizando'
+                if (docker.image.exists(env.DOCKER_IMAGE)) {
+                    docker.image(env.DOCKER_IMAGE).remove()
+                } else {
+                    echo "A imagem ${env.DOCKER_IMAGE} não existe."
+                }
             }
         }
         success {
             script {
-                echo 'Success'
+                echo 'Sucesso'
             }
         }
         failure {
             script {
-                echo 'Fail'
+                echo 'Falha'
             }
         }
     }
