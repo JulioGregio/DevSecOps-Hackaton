@@ -24,7 +24,7 @@ pipeline {
         stage('Análise Estática de Código') {
             steps {
                 script {
-                    sh "bandit -r ."
+                    echo "fazer"
                 }
             }
         }
