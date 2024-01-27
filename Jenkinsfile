@@ -32,7 +32,7 @@ pipeline {
         stage('Análise de Vulnerabilidades') {
             steps {
                 script {
-                    sh "trivy $DOCKER_IMAGE"
+                    sh "trivy --exit-code 1 ${env.DOCKER_IMAGE}"
                 }
             }
         }
@@ -42,6 +42,7 @@ pipeline {
         always {
             script {
                 echo 'In progress'
+                docker.image(env.DOCKER_IMAGE).remove()
             }
         }
         success {
