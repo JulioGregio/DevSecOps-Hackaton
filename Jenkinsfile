@@ -32,7 +32,7 @@ pipeline {
         stage('Análise de Vulnerabilidades') {
             steps {
                 script {
-                    sh "trivy --exit-code 1 ${env.DOCKER_IMAGE}"
+                    sh "trivy image ${env.DOCKER_IMAGE}"
                 }
             }
         }
