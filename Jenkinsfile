@@ -21,19 +21,23 @@ pipeline {
             }
         }
 
-        stage('Análise Estática de Código') {
-            steps {
-                script {
-                    sh 'bandit -r -l 5 -x tests/ -f html -o bandit_report.html .'
-                }
-            }
-        }
-
         stage('Análise de Vulnerabilidades') {
             steps {
                 script {
                     sh "docker image inspect $DOCKER_IMAGE"
                     sh "trivy image $DOCKER_IMAGE"
+                }
+            }
+        }
+
+        stage('Análise de Código com SonarQube') {
+            steps {
+                script {
+                    sh 'mvn clean verify sonar:sonar ' +
+                       '-Dsonar.projectKey=teste ' +
+                       '-Dsonar.projectName=\'teste\' ' +
+                       '-Dsonar.host.url=http://localhost:9000 ' +
+                       '-Dsonar.token=sqp_4403aa0eddc57e4fc5f8a3ccd45290066ed1a9b1'
                 }
             }
         }
