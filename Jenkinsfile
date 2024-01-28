@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    tolls {
+        maven 'Maven3'
+    }
     environment {
         DOCKER_IMAGE = "devsecopshackaton_flask-app:latest"
     }
@@ -33,7 +35,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withMaven(
-                    maven: 'Default Maven', 
+                    maven: 'Maven3', 
                     mavenSettingsConfig: 'your-maven-settings-id'
                 ) {
                     sh "mvn clean verify sonar:sonar -Dsonar.projectKey=teste -Dsonar.projectName='teste'"
