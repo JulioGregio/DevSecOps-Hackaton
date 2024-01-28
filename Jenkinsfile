@@ -24,7 +24,7 @@ pipeline {
         stage('Análise Estática de Código') {
             steps {
                 script {
-                    sh 'bandit -r -ll -ii -iii -x tests/ -s B101 -f html -o bandit_report.html .'
+                    bandit -r -ll -x tests/ -s B101 -f html -o bandit_report.html .
                 }
             }
         }
