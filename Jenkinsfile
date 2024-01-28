@@ -33,6 +33,7 @@ pipeline {
         stage('Análise de Código com SonarQube') {
             steps {
                 script {
+                    dir("$WORKSPACE/.")
                     sh 'mvn clean verify sonar:sonar ' +
                        '-Dsonar.projectKey=teste ' +
                        '-Dsonar.projectName=\'teste\' ' +
