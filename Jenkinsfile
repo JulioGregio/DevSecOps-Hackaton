@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    tolls {
+    tools {
         maven 'Maven3'
     }
     environment {
