@@ -30,15 +30,13 @@ pipeline {
             }
         }
 
-        stage('Análise de Código com SonarQube') {
+        stage('SonarQube Analysis') {
             steps {
-                script {
-                    dir("$WORKSPACE/.")
-                    sh 'mvn clean verify sonar:sonar ' +
-                       '-Dsonar.projectKey=teste ' +
-                       '-Dsonar.projectName=\'teste\' ' +
-                       '-Dsonar.host.url=http://localhost:9000 ' +
-                       '-Dsonar.token=sqp_4403aa0eddc57e4fc5f8a3ccd45290066ed1a9b1'
+                withMaven(
+                    maven: 'Default Maven', 
+                    mavenSettingsConfig: 'your-maven-settings-id'
+                ) {
+                    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=teste -Dsonar.projectName='teste'"
                 }
             }
         }
