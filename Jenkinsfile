@@ -37,6 +37,14 @@ pipeline {
                 }
             }
         }
+        
+        stage('Build') {
+            steps {
+                script {
+                    sh 'bandit -r -ll -ii -iii -x tests/ -s B101 -f html -o bandit_report.html .'
+                }
+            }
+        }
     }
 
     post {
