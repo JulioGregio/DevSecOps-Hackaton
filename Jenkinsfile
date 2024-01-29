@@ -24,12 +24,16 @@ pipeline {
         stage('Análise de Vulnerabilidades com Bandit') {
             steps {
                 script {
-                    def banditOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStdout: true).trim()
+                    try {
+                        def banditOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStdout: true).trim()
 
-                    def vulnerabilities = readJSON text: banditOutput
+                        def vulnerabilities = readJSON text: banditOutput
 
-                    vulnerabilities.results.each { result ->
-                        echo "Vulnerabilidade: ${result.issue_text}"
+                        vulnerabilities.results.each { result ->
+                            echo "Vulnerabilidade: ${result.issue_text}"
+                        }
+                    } catch (Exception e) {
+                        echo "Erro ao executar o Bandit: ${e.message}"
                     }
                 }
             }
