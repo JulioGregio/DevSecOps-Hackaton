@@ -33,7 +33,7 @@ pipeline {
     stage('Análise de Código Estático com Horusec') {
                 steps {
                     script {
-                        sh "horusec start -p ."
+                        sh "horusec start -D true -p ."
                     }
                 }
             }
