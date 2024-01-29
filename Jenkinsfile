@@ -1,13 +1,8 @@
 pipeline {
     agent any
-
-    tools {
-        maven 'Maven3'
-    }
-
+    
     environment {
         DOCKER_IMAGE = "devsecopshackaton_flask-app:latest"
-        SONARQUBE_URL = "http://your-sonarqube-server:9000"
     }
 
     stages {
@@ -26,23 +21,15 @@ pipeline {
             }
         }
 
-        stage('Análise de Vulnerabilidades') {
+        stage('Análise de Vulnerabilidades com Bandit') {
             steps {
                 script {
-                    sh "docker image inspect $DOCKER_IMAGE"
-                    sh "trivy image $DOCKER_IMAGE"
-                }
-            }
-        }
+                    def banditOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStdout: true).trim()
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withMaven(
-                        maven: 'Maven3', 
-                        mavenSettingsConfig: 'your-maven-settings-id'
-                    ) {
-                        sh "mvn clean verify sonar:sonar -Dsonar.projectKey=teste -Dsonar.projectName='teste' -Dsonar.host.url=$SONARQUBE_URL"
+                    def vulnerabilities = readJSON text: banditOutput
+
+                    vulnerabilities.results.each { result ->
+                        echo "Vulnerabilidade: ${result.issue_text}"
                     }
                 }
             }
