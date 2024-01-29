@@ -43,11 +43,14 @@ stage('Análise de Código Estático com Bandit') {
                 }
             } catch (Exception e) {
                 echo "Erro ao executar o Bandit: ${e.message}"
+                
+                // Adicionar a seguinte linha para imprimir a saída padrão de erro do Bandit
+                def banditErrorOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStatus: true, returnStdout: true).err
+                echo "Saída de erro do Bandit: ${banditErrorOutput}"
             }
         }
     }
 }
-
 
     post {
         always {
