@@ -21,7 +21,16 @@ pipeline {
             }
         }
 
-        stage('Análise de Vulnerabilidades com Bandit') {
+stage('Análise de Vulnerabilidades com Trivy') {
+            steps {
+                script {
+                    sh "docker image inspect $DOCKER_IMAGE"
+                    sh "trivy image $DOCKER_IMAGE"
+                }
+            }
+        }
+        
+        stage('Análise de Código Estático com Bandit') {
             steps {
                 script {
                     try {
