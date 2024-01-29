@@ -1,10 +1,13 @@
 pipeline {
     agent any
+
     tools {
         maven 'Maven3'
     }
+
     environment {
         DOCKER_IMAGE = "devsecopshackaton_flask-app:latest"
+        SONARQUBE_URL = "http://your-sonarqube-server:9000"
     }
 
     stages {
@@ -34,11 +37,13 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withMaven(
-                    maven: 'Maven3', 
-                    mavenSettingsConfig: 'your-maven-settings-id'
-                ) {
-                    sh "mvn clean verify sonar:sonar -Dsonar.projectKey=teste -Dsonar.projectName='teste'"
+                script {
+                    withMaven(
+                        maven: 'Maven3', 
+                        mavenSettingsConfig: 'your-maven-settings-id'
+                    ) {
+                        sh "mvn clean verify sonar:sonar -Dsonar.projectKey=teste -Dsonar.projectName='teste' -Dsonar.host.url=$SONARQUBE_URL"
+                    }
                 }
             }
         }
