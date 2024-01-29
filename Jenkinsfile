@@ -21,22 +21,23 @@ pipeline {
             }
         }
 
-stage('Análise de Vulnerabilidades com Trivy') {
-            steps {
-                script {
-                    sh "docker image inspect $DOCKER_IMAGE"
-                    sh "trivy image $DOCKER_IMAGE"
+    stage('Análise de Vulnerabilidades com Trivy') {
+                steps {
+                    script {
+                        sh "docker image inspect $DOCKER_IMAGE"
+                        sh "trivy image $DOCKER_IMAGE"
+                    }
+                }
+            }
+        
+    stage('Análise de Código Estático com Horusec') {
+                steps {
+                    script {
+                        sh "horusec start -p ."
+                    }
                 }
             }
         }
-        
-stage('Análise de Código Estático com Bandit') {
-    steps {
-        script {
-            sh "horusec start $DOCKER_IMAGE"
-        }
-    }
-}
 
     post {
         always {
