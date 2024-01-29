@@ -30,24 +30,24 @@ stage('Análise de Vulnerabilidades com Trivy') {
             }
         }
         
-        stage('Análise de Código Estático com Bandit') {
-            steps {
-                script {
-                    try {
-                        def banditOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStdout: true).trim()
+stage('Análise de Código Estático com Bandit') {
+    steps {
+        script {
+            try {
+                def banditOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStdout: true).trim()
 
-                        def vulnerabilities = readJSON text: banditOutput
+                def vulnerabilities = readJSON text: banditOutput
 
-                        vulnerabilities.results.each { result ->
-                            echo "Vulnerabilidade: ${result.issue_text}"
-                        }
-                    } catch (Exception e) {
-                        echo "Erro ao executar o Bandit: ${e.message}"
-                    }
+                vulnerabilities.results.each { result ->
+                    echo "Vulnerabilidade: ${result.issue_text}" // Corrigir para o campo correto, se necessário
                 }
+            } catch (Exception e) {
+                echo "Erro ao executar o Bandit: ${e.message}"
             }
         }
     }
+}
+
 
     post {
         always {
