@@ -33,21 +33,7 @@ stage('Análise de Vulnerabilidades com Trivy') {
 stage('Análise de Código Estático com Bandit') {
     steps {
         script {
-            try {
-                def banditOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStdout: true).trim()
-
-                def vulnerabilities = readJSON text: banditOutput
-
-                vulnerabilities.results.each { result ->
-                    echo "Vulnerabilidade: ${result.issue_text}" // Corrigir para o campo correto, se necessário
-                }
-            } catch (Exception e) {
-                echo "Erro ao executar o Bandit: ${e.message}"
-                
-                // Adicionar a seguinte linha para imprimir a saída padrão de erro do Bandit
-                def banditErrorOutput = sh(script: "bandit -r -f json -o bandit_results.json .", returnStatus: true, returnStdout: true).err
-                echo "Saída de erro do Bandit: ${banditErrorOutput}"
-            }
+            sh "horusec start $DOCKER_IMAGE"
         }
     }
 }
