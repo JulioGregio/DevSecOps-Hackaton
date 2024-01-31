@@ -4,9 +4,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN python3 -m venv ./venv && \
-    . venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt
+RUN python3 -m venv ./venv
+RUN . venv/bin/activate
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
 CMD ["flask", "--app", "app", "run", "--host=0.0.0.0"]
