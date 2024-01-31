@@ -48,7 +48,7 @@ pipeline {
         success {
             script {
                 echo 'Sucesso'
-                sh "docker run -d $DOCKER_IMAGE"
+                sh "docker-compose up"
             }
         }
         failure {
